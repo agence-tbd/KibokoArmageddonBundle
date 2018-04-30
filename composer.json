@@ -16,5 +16,10 @@
     ],
     "require-dev": {
         "kiboko/armageddon": "master"
-    }
+    },
+    "autoload": {
+      "psr-4": {
+        "Kiboko\\Bundle\\ArmageddonBundle\\": ""
+      }
+    },
 }
