@@ -1,0 +1,20 @@
+{
+    "name": "kiboko/armageddon",
+    "description": "Clear everything and recreate everything (debug purpose only)",
+    "authors": [
+        {
+            "name": "Kiboko",
+            "email": "hello@kiboko.fr"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:kiboko-labs/KibokoArmageddonBundle.git",
+            "branch": "master"
+        }
+    ],
+    "require-dev": {
+        "kiboko/armageddon": "master"
+    }
+}
