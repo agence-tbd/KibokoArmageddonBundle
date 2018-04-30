@@ -10,7 +10,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:kiboko-labs/KibokoArmageddonBundle.git",
+            "url": "https://github.com/kiboko-labs/KibokoArmageddonBundle",
             "branch": "master"
         }
     ],
