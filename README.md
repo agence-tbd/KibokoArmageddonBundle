@@ -25,6 +25,14 @@ Can i run it Twice?
 ====================
 Huu?? can Armageddon be done twice??
 
+In fact if you look at the code, when running `composer install`, it runs `compsoer install --no-dev --optimize-autoloader`
+As we've added `kiboko/armageddon` to require-dev, it is not available after running `kiboko:amrageddon`.
+
+TODO : 
+- Add more exciting options like `--liv`
+- Make `kiboko/armageddon` still available after `kiboko/armageddon`
+- and more options :)
+
 How to run Armageddon?
 ====================
 
