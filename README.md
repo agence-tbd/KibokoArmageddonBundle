@@ -7,6 +7,13 @@ Important notice !
 This Bundle is provide as it, whithout any warranty of any kind, unless the warranty of doing what it is aiming to do.
 This Bundle is not for production use, If it's called *ArmageddonBundle* , there is a reason.
 
+What is this Bundle made for?
+====================
+
+Usually, when you develop, you have to switch between git branches, in some cases, assets are not totally deployed. 
+At Kiboko, we wanted to make a simpler way to regenerate all assets and dependencies , in only one command.
+Then we've created `kiboko:armageddon` CLI command.
+
 What does this Bundle do?
 ====================
 
@@ -25,8 +32,8 @@ Can i run it Twice?
 ====================
 Huu?? can Armageddon be done twice??
 
-In fact if you look at the code, when running `composer install`, it runs `compsoer install --no-dev --optimize-autoloader`
-As we've added `kiboko/armageddon` to require-dev, it is not available after running `kiboko:amrageddon`.
+In fact if you look at the code, when running `composer install`, it runs `composer install --no-dev --optimize-autoloader`
+As we've added `kiboko/armageddon` into require-dev, it is not available after running `kiboko:amrageddon`.
 
 TODO : 
 - Add more exciting options like `--liv`
