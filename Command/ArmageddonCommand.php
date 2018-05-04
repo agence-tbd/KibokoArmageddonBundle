@@ -18,6 +18,7 @@ namespace Kiboko\Bundle\ArmageddonBundle\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\Process;
 
@@ -35,6 +36,7 @@ class ArmageddonCommand extends ContainerAwareCommand
             ->setName('kiboko:armageddon')
             ->setDescription('Flush everything and recreates everything')
             ->addOption('bruce', '--bruce', InputOption::VALUE_NONE, 'Bruce will perform Armageddon')
+            ->addOption('dry-run', '--dry-run', InputOption::VALUE_NONE, 'Nothing will be deleted')
             ->setHelp('This command clear cache, vendor, web directory and recreate everything');
 
         parent::configure();
@@ -49,37 +51,56 @@ class ArmageddonCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $bruce = $input->getOption('bruce');
-        $output->writeln([
-            'Armageddon.......',
-            '=================',
-            '',
-        ]);
+        $dryRun = $input->getOption('dry-run');
 
-        if (!$bruce) {
-            $output->writeln('<comment>Armageddon can\'t be played without --bruce rerun the command to perform armageddon<comment>');
-            return 0;
+
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Armageddon utility to clean up assets and dependencies');
+        if ($dryRun) {
+            $io->note("Armageddon has been lauched in dry-run mode");
         }
 
-        $output->writeln('Fire!');
+        if (!$bruce) {
+            $io->error("Armageddon can't be performed without bruce");
+            $io->note("You need to add the '--bruce' option in order to perform Armageddon");
+            return 0;
+        }
+        $validation = $io->confirm('Do you really want to run Armageddon ?');
+        if($validation === false) {
+            $io->note("Houston we have a problem, Armageddon is cancelled");
+            return;
+        } else {
+            $io->note("We have visual of the target, Houston.");
+        }
 
         $rootDir = realpath(__DIR__ . '/../../../../../') . '/';
         $env = !$input->getOption('env') ? 'dev' : $input->getOption('env');
 
         $processExec = new Process('rm -rf ' . $rootDir . 'vendor ' . $rootDir . 'app/cache/*');
-        $output->writeln('<comment>Running `rm -rf vendor app/cache/*`<comment>');
-        $processExec->run();
-        echo $processExec->getOutput();
+        $io->section('Running `rm -rf vendor app/cache/*`');
+        if (!$dryRun) {
+            $processExec->run();
+            echo $processExec->getOutput();
+        }
+
 
         $processExec = new Process('composer install --no-dev --optimize-autoloader');
-        $output->writeln('<comment>Running `composer install`<comment>');
-        $processExec->run();
+        $io->section('Running `composer install`');
+        if (!$dryRun) {
+            $processExec->run();
+        }
 
         foreach ($this->getProcesses() as $process) {
             $processExec = new Process($rootDir . 'app/console ' . $process . ' --env=' . $env);
-            $output->writeln('<comment>Running app/console ' . $process . ' --env=' . $env . '</comment>');
-            $processExec->setTimeout(0)->run();
-            echo $processExec->getOutput();
+            $io->section('Running app/console ' . $process . ' --env=' . $env . '');
+            if (!$dryRun) {
+                $processExec->setTimeout(0)->run();
+                echo $processExec->getOutput();
+            }
+
         }
+
+        $io->success('Look Like Armageddon has cleaned up all the mess....');
     }
 
     private function getProcesses()
