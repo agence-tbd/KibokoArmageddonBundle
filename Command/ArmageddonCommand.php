@@ -36,7 +36,8 @@ class ArmageddonCommand extends ContainerAwareCommand
             ->setName('kiboko:armageddon')
             ->setDescription('Flush everything and recreates everything')
             ->addOption('bruce', '--bruce', InputOption::VALUE_NONE, 'Bruce will perform Armageddon')
-            ->addOption('dry-run', '--dry-run', InputOption::VALUE_NONE, 'Nothing will be deleted')
+            ->addOption('progress', '--p', InputOption::VALUE_NONE, 'show a progress bar')
+            ->addOption('dry-run', '--D', InputOption::VALUE_NONE, 'Nothing will be deleted')
             ->setHelp('This command clear cache, vendor, web directory and recreate everything');
 
         parent::configure();
@@ -52,6 +53,7 @@ class ArmageddonCommand extends ContainerAwareCommand
     {
         $bruce = $input->getOption('bruce');
         $dryRun = $input->getOption('dry-run');
+        $progressBar = $input->getOption('progress');
 
 
         $io = new SymfonyStyle($input, $output);
@@ -65,12 +67,17 @@ class ArmageddonCommand extends ContainerAwareCommand
             $io->note("You need to add the '--bruce' option in order to perform Armageddon");
             return 0;
         }
+
         $validation = $io->confirm('Do you really want to run Armageddon ?');
         if($validation === false) {
             $io->note("Houston we have a problem, Armageddon is cancelled");
             return;
         } else {
             $io->note("We have visual of the target, Houston.");
+            if($progressBar) {
+                $io->progressStart(8);
+            }
+
         }
 
         $rootDir = realpath(__DIR__ . '/../../../../../') . '/';
@@ -80,14 +87,20 @@ class ArmageddonCommand extends ContainerAwareCommand
         $io->section('Running `rm -rf vendor app/cache/*`');
         if (!$dryRun) {
             $processExec->run();
-            echo $processExec->getOutput();
+            $io->text($processExec->getOutput());
+            if($progressBar) {
+                $io->progressAdvance(1);
+            }
         }
 
 
-        $processExec = new Process('composer install --no-dev --optimize-autoloader');
+        $processExec = new Process('composer install --optimize-autoloader');
         $io->section('Running `composer install`');
         if (!$dryRun) {
             $processExec->run();
+            if($progressBar) {
+                $io->progressAdvance(1);
+            }
         }
 
         foreach ($this->getProcesses() as $process) {
@@ -95,11 +108,17 @@ class ArmageddonCommand extends ContainerAwareCommand
             $io->section('Running app/console ' . $process . ' --env=' . $env . '');
             if (!$dryRun) {
                 $processExec->setTimeout(0)->run();
-                echo $processExec->getOutput();
+                $io->text($processExec->getOutput());
+                if($progressBar) {
+                    $io->progressAdvance(1);
+                }
             }
 
         }
 
+        if($progressBar) {
+            $io->progressFinish();
+        }
         $io->success('Look Like Armageddon has cleaned up all the mess....');
     }
 
