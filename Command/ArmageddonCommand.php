@@ -87,6 +87,7 @@ class ArmageddonCommand extends ContainerAwareCommand
         return [
             'cache:warmup',
             'oro:asset:install',
+            'oro:requirejs:build',
             'assetic:dump',
             'oro:translation:dump',
             'oro:localization:dump',
